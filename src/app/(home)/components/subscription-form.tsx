@@ -2,8 +2,10 @@
 
 import Button from '@/components/button'
 import { InputField, InputIcon, InputRoot } from '@/components/input'
+import { subscribeToEvent } from '@/http/api'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowRight, Mail, User } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -15,6 +17,8 @@ const subscriptionSchema = z.object({
 type SubscriptionSchema = z.infer<typeof subscriptionSchema>
 
 const SubscriptionForm = () => {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const {
     register,
     handleSubmit,
@@ -22,8 +26,12 @@ const SubscriptionForm = () => {
   } = useForm<SubscriptionSchema>({
     resolver: zodResolver(subscriptionSchema),
   })
-  function onSubscribe(data: SubscriptionSchema) {
-    console.log(data)
+  async function onSubscribe({ email, name }: SubscriptionSchema) {
+    const referrer = searchParams.get('referrer')
+
+    const { subscriberId } = await subscribeToEvent({ email, name, referrer })
+
+    router.push(`/invite/${subscriberId}`)
   }
 
   return (
@@ -47,7 +55,9 @@ const SubscriptionForm = () => {
             />
           </InputRoot>
           {errors.name && (
-            <p className="text-danger text-xs font-semibold">{errors.name.message}</p>
+            <p className="text-danger text-xs font-semibold">
+              {errors.name.message}
+            </p>
           )}
         </div>
         <div className="space-y-2">
@@ -62,7 +72,9 @@ const SubscriptionForm = () => {
             />
           </InputRoot>
           {errors.email && (
-            <p className="text-danger text-xs font-semibold">{errors.email.message}</p>
+            <p className="text-danger text-xs font-semibold">
+              {errors.email.message}
+            </p>
           )}
         </div>
       </div>
