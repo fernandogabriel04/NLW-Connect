@@ -12,7 +12,7 @@ const Ranking = async () => {
         Ranking de indicações
       </h2>
       <div className="space-y-4">
-        {ranking.map((rank, index) => {
+        {ranking?.map((rank, index) => {
           
           const rankingPosition = index + 1
           return (
